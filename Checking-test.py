@@ -61,21 +61,23 @@ def crawling_product(url1,number_of_pages,pdn):
                 try: 
                     #Some products doesn't have regular price
                     Regularprice = product.find('span',{'class':'price-regular'})
-                    d['Regular-Price'] = Regularprice.text
+                    d['Regular-Price'] = Regularprice.text.strip(" \n, ...")
                     #Or somethings like Installment
                     Installment = product.find('span',{'class':'installment-price-v2'})
                     d['Installment'] = Installment.text
                     #rating is somes of optional
                     # Rating = product.find('span',{'class':'rating-content'})
                     # d['Rating'] = Rating.text.strip("width:")
+                except:
+                    d['Regular-Price'] = d['Final-Price']
+                    d['Installment'] = None
+                try:
                     #TIKI-NOW - aka Unique Value of TIKI
                     tikinow = product.find('div',{'class':'badge-service'})
                     badge_check = tikinow.div.img['src']
                     if str(badge_check) == "https://salt.tikicdn.com/ts/upload/9f/32/dd/8a8d39d4453399569dfb3e80fe01de75.png":
                         d['TIKI-NOW'] = "YES"
                 except:
-                    d['Regular-Price'] = d['Final-Price']
-                    d['Installment'] = None
                     d['TIKI-NOW'] = "NO"
                     # d['Rating'] = None
                 #Then we appending all the Data from this page:       
@@ -95,5 +97,5 @@ def crawling_product(url1,number_of_pages,pdn):
     return full_products
 
 
-link ='https://tiki.vn/linh-kien-may-tinh-phu-kien-may-tinh/c8129/asus?src=c.8095.hamburger_menu_fly_out_bannerr'
-crawling_product(link, Check_number_of_pages(link,60), 'lkmt')
+link ='https://tiki.vn/cham-soc-da-mat/c1582?src=tree&_lc=Vk4wMzkwMjMwMDg%3D&src=c.1582.hamburger_menu_fly_out_banner'
+crawling_product(link, Check_number_of_pages(link,60), 'SkinCare')
