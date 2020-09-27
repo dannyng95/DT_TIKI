@@ -14,7 +14,7 @@ def Check_number_of_pages(link,n):
         products_check = soup.find_all('div',{'class':'product-item'})
         items = len(products_check)
         y = x
-        sleep(random.randint(1,1)) 
+        sleep(random.randint(1,2)) 
         if items == 0:
             pages = y-1
             print(f'{pages} is the final pages of this product')
@@ -26,7 +26,7 @@ def Check_number_of_pages(link,n):
     
 def crawling_product(url1,number_of_pages,pdn):
     """Scrape the page of product you want to
-      Input: url to the webpage. Default: https://tiki.vn/may-anh/c1801?src=c.1801.hamburger_menu_fly_out_banner
+      Input: url to the webpage. Default: https://tiki.vn/*****/****.hamburger_menu_fly_out_banner
       Output: A list containing scraped data of all product & price
     """
     # Get parsed HTML
@@ -91,16 +91,15 @@ def crawling_product(url1,number_of_pages,pdn):
                     print(f"No installment for {d['Product-Title']}")
                     d['Installment'] = None                
 
-                    #rating is somes of optional
+                    #RATING is somes of optionals
                 try:
                     Rating = product.find('span',{'class':'rating-content'})
                     d['Rating'] = str(Rating.span['style']).strip("width:")
                 except:
                     print(f"No Rating for {d['Product-Title']}")
                     d['Rating'] = None                       
-
-                try:
-                    #TIKI-NOW - aka Unique Value of TIKI
+                 #TIKI-NOW - aka Unique Value of TIKI
+                try:                   
                     tikinow = product.find('div',{'class':'badge-service'})
                     badge_check = tikinow.div.img['src']
                     if str(badge_check) == "https://salt.tikicdn.com/ts/upload/9f/32/dd/8a8d39d4453399569dfb3e80fe01de75.png":
@@ -132,3 +131,5 @@ link = input(f"Instert the Url of the product(first page) :")
 magic_number = random.randint(999,9999)
 n = magic_number
 crawling_product(link, Check_number_of_pages(link,n),catalogue)
+
+#explain : https://gist.github.com/dannyng95/a88468ad92f7da3ec4db82c81ccf6adc
