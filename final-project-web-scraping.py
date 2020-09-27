@@ -43,7 +43,8 @@ def crawling_product(url1,number_of_pages,pdn):
         data = []
         # List containing data of all products 
         for product in products: 
-            d = {'Product-id':'','Seller-id':'','Product-SKU':'','Product-Title':'','Product-Brand':'','URL':'','img_URL':'','Regular-Price':'','Final-Price':'','Comment':'','TIKI-NOW':'','Installment':'',
+            d = {'Product-id':'','Seller-id':'','Product-SKU':'','Product-Title':'','Product-Brand':'','Author':'',
+                 'URL':'','img_URL':'','Regular-Price':'','Final-Price':'','Comment':'','TIKI-NOW':'','Rating':'','Installment':'',
                  'Page':'','Location':''}
             #other optional : ,'Rating':''
             try:
@@ -58,22 +59,46 @@ def crawling_product(url1,number_of_pages,pdn):
                 d['Final-Price'] = Finalprice.text.strip(" \n, ...")
                 d['Location'] = products.index(product)
                 d['Page'] = x-1
-                #Let's Check for somethings deeper
+                
+#Let's Check for somethings deeper
+                #COMMENT
                 try: 
+                    Comment = product.find('p',{'class':'review'})
+                    d['Comment'] = Comment.text.strip(" \n, ')' (... ")
+                except:
+                    print(f"No comment for {d['Product-Title']}")
+
+                #AUTHOR for BOOKs
+                try:
+                    Author = product.find('p',{'class':'author'})
+                    d['Author'] = Author.text
+                except:
+                    d['Author'] = None
+                #REGULAR PRICE (sometime product has the same with final price)
+                try:
                     #Some products doesn't have regular price
                     Regularprice = product.find('span',{'class':'price-regular'})
                     d['Regular-Price'] = Regularprice.text.strip(" \n, ...")
+                except:
+                    print(f"No Regular Price for {d['Product-Title']}")    
+                    d['Regular-Price'] = d['Final-Price']
+                #INSTALLMENT - For optional
+                try:                          
                     #Or somethings like Installment
                     Installment = product.find('span',{'class':'installment-price-v2'})
                     d['Installment'] = Installment.text
-                    Comment = product.find('p',{'class':'review'})
-                    d['Comment'] = Comment.text.strip(" \n, ')' (... ")
-                    #rating is somes of optional
-                    # Rating = product.find('span',{'class':'rating-content'})
-                    # d['Rating'] = Rating.text.strip("width:")
                 except:
-                    d['Regular-Price'] = d['Final-Price']
-                    d['Installment'] = None
+                    print(f"No installment for {d['Product-Title']}")
+                    d['Installment'] = None                
+
+                    #rating is somes of optional
+                try:
+                    Rating = product.find('span',{'class':'rating-content'})
+                    d['Rating'] = str(Rating.span['style']).strip("width:")
+                except:
+                    print(f"No Rating for {d['Product-Title']}")
+                    d['Rating'] = None                       
+
                 try:
                     #TIKI-NOW - aka Unique Value of TIKI
                     tikinow = product.find('div',{'class':'badge-service'})
@@ -82,7 +107,7 @@ def crawling_product(url1,number_of_pages,pdn):
                         d['TIKI-NOW'] = "YES"
                 except:
                     d['TIKI-NOW'] = "NO"
-                    # d['Rating'] = None
+                    
                 #Then we appending all the Data from this page:       
                 data.append(d)   
             #If missing some info let's the syntax warning back.
@@ -93,17 +118,17 @@ def crawling_product(url1,number_of_pages,pdn):
         #Use pandas to DF the dataall, with colums keys is"dataall[0]""     
         full_products = pd.DataFrame(data = dataall, columns = dataall[0].keys())
         #Then convert it to CSV for saving & visualization and name it by "pdn" = product-name
-        full_products.to_csv(f'./Full_Products_{pdn}.csv', index=False)
- 
-           
+        full_products.to_csv(f'./Output/Full_Products_{pdn}.csv', index=False)
+    #visualization as Table(df) from Pandas       
     return full_products
     sleeptime = random.randint(1,2)
-    sleep(sleeptime) 
+    sleep(sleeptime)
 
-# link ='https://tiki.vn/cham-soc-da-mat/c1582?src=tree&_lc=Vk4wMzkwMjMwMDg%3D&src=c.1582.hamburger_menu_fly_out_banner'
-# crawling_product(link, Check_number_of_pages(link,60), 'SkinCare')
 
+
+#FOR RUNNING EVERY CATALOGUEs:
 catalogue = input(f"What's Products/Catalogues you want to crawl: ")
 link = input(f"Instert the Url of the product(first page) :")
-n = 99999
+magic_number = random.randint(999,9999)
+n = magic_number
 crawling_product(link, Check_number_of_pages(link,n),catalogue)
