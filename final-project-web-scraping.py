@@ -119,6 +119,10 @@ def crawling_product(url1,number_of_pages,pdn):
         full_products = pd.DataFrame(data = dataall, columns = dataall[0].keys())
         #Then convert it to CSV for saving & visualization and name it by "pdn" = product-name
         full_products.to_csv(f'./Output/Full_Products_{pdn}.csv', index=False)
+        
+        # Export to pickle file
+        full_products.to_pickle("./TIKI_result.pkl")
+        
     #visualization as Table(df) from Pandas       
     return full_products
     sleeptime = random.randint(1,2)
